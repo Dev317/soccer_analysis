@@ -16,7 +16,7 @@ def store_authentication_cookies(cookies, response):
     cookies["authenticated"] = "True"
     cookies.save()
 
-def login():
+def auth():
     supabase_client = get_sp_client()
     authentication_container = st.container(border=True, key='auth_container')
 
@@ -28,15 +28,10 @@ def login():
 
             if st.button("Log in"):
                 try:
-                    response = supabase_client.auth.sign_in_with_password(
-                        {"email": email, "password": password}
-                    )
-
-                    if response:
-                        store_authentication_cookies(cookies, response)
-                        st.rerun()
-                    else:
-                        raise Exception("Failed to retrieve credentials")
+                    login(supabase_client, {
+                        "email": email,
+                        "password": password
+                    })
                 except Exception as ex:
                     st.toast(f"{ex}!", icon="⚠️")
 
@@ -45,10 +40,33 @@ def login():
             password = st.text_input("Password", type="password", key="signup_password")
 
             if st.button("Sign up"):
-                st.session_state.user_session = True
+                try:
+                    sign_up(supabase_client, {
+                        "email": email,
+                        "password": password
+                    })
+                except Exception as ex:
+                    st.toast(f"{ex}!", icon="⚠️")
 
 def logout():
     cookies['authenticated'] = "False"
     del cookies['email']
     del cookies['expiry']
     st.rerun()
+
+def login(supabase_client, login_payload):
+    response = supabase_client.auth.sign_in_with_password(login_payload)
+
+    if response:
+        store_authentication_cookies(cookies, response)
+        st.rerun()
+    else:
+        raise Exception("Failed to retrieve credentials")
+
+def sign_up(supabase_client, sign_up_payload):
+    response = supabase_client.auth.sign_up(sign_up_payload)
+    if response:
+        store_authentication_cookies(cookies, response)
+        st.rerun()
+    else:
+        raise Exception("Failed to create account")

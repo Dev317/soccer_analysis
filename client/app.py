@@ -1,9 +1,9 @@
 import os
 import streamlit as st
-from authentication import login, logout, cookies
+from authentication import auth, logout, cookies
 
 def main():
-    login_page = st.Page(login, title="Log in", icon=":material/login:")
+    auth_page = st.Page(auth, title="Log in", icon=":material/login:")
     logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
     dashboard = st.Page(
         "analyse/dashboard.py", title="Dashboard", icon=":material/dashboard:", default=True
@@ -20,7 +20,7 @@ def main():
             expanded=True
         )
     else:
-        pg = st.navigation([login_page])
+        pg = st.navigation([auth_page])
 
     pg.run()
 
